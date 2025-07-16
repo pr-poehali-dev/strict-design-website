@@ -1,324 +1,384 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Icon from "@/components/ui/icon";
+import { useState } from "react";
 
 const Index = () => {
-  const cameras = [
-    {
-      id: "18-0242",
-      name: "Лиговский пр., дом 6",
-      status: "Подтвержден",
-      location: "Санкт-Петербург",
-      uptime: 98.5,
-      lastCheck: "15:07:2020 10:35:52",
-      type: "Уличная камера"
+  const [activeSection, setActiveSection] = useState('monitoring');
+
+  const menuItems = [
+    { id: 'monitoring', label: 'Карты', icon: 'Map' },
+    { id: 'devices', label: 'УМ', icon: 'Monitor' },
+    { id: 'geomonitoring', label: 'Геомониторинг', icon: 'Globe' },
+    { id: 'references', label: 'Справочники', icon: 'BookOpen' },
+    { id: 'classifications', label: 'Классификаторы', icon: 'Grid3X3' },
+    { id: 'organizations', label: 'Структуры организаций', icon: 'Building' },
+    { id: 'users', label: 'Пользователи', icon: 'Users' },
+    { id: 'processes', label: 'Рабочие процессы', icon: 'Workflow' }
+  ];
+
+  const subMenuItems = [
+    'Типы услуг',
+    'Адреса',
+    'Размещение',
+    'Модели камер'
+  ];
+
+  const deviceData = {
+    id: "18-3623",
+    name: "Устройство мониторинга",
+    address: "Санкт-Петербург, город Кронштадт, улица Ленина, дом 11/37, литера А",
+    guid: "d0a4f90f-b0f6-4b2f-4b2d-934f-f74cc0efaff6",
+    status: "Эксплуатация",
+    model: "Dahua VTO2101X-P",
+    specs: {
+      category: "IP-камера",
+      video: "Да",
+      audio: "Нет", 
+      dynamics: "Нет",
+      zoom: "Нет",
+      ptz: "Нет",
+      ir: "15"
     },
-    {
-      id: "18-0241",
-      name: "Невский пр., дом 28",
-      status: "Проверен",
-      location: "Санкт-Петербург", 
-      uptime: 99.2,
-      lastCheck: "15:07:2020 14:55:33",
-      type: "Внутренняя камера"
+    network: {
+      camera: "10.242.190.66",
+      lock: "10.242.190.65", 
+      audio: "10.242.190.64"
     },
-    {
-      id: "18-0243",
-      name: "Московский пр., дом 15",
-      status: "Требует проверки",
-      location: "Санкт-Петербург",
-      uptime: 85.3,
-      lastCheck: "14:07:2020 09:22:15",
-      type: "Поворотная камера"
+    coordinates: {
+      width: "60.008262",
+      longitude: "29.724457",
+      azimuth: "306",
+      height: "7"
     }
+  };
+
+  const checkResults = [
+    { param: "Сигнал связности ICMP PING", status: "success" },
+    { param: "Доступ по 80 порту", status: "success" },
+    { param: "Доступ по 554 порту", status: "warning" },
+    { param: "Проверка параметров NTP", status: "error" }
   ];
 
-  const analytics = [
-    { label: "Активных камер", value: "47", trend: "+2.5%" },
-    { label: "Средняя загрузка", value: "73%", trend: "-1.2%" },
-    { label: "Время работы", value: "98.5%", trend: "+0.3%" },
-    { label: "Ошибки за месяц", value: "3", trend: "-50%" }
-  ];
-
-  const getStatusColor = (status: string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case "Подтвержден": return "bg-green-100 text-green-800";
-      case "Проверен": return "bg-blue-100 text-blue-800";
-      case "Требует проверки": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-gray-100 text-gray-800";
+      case 'success': return <Icon name="CheckCircle" size={16} className="text-green-600" />;
+      case 'warning': return <Icon name="AlertTriangle" size={16} className="text-yellow-600" />;
+      case 'error': return <Icon name="XCircle" size={16} className="text-red-600" />;
+      default: return <Icon name="Circle" size={16} className="text-gray-400" />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-open-sans">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Icon name="Video" size={28} className="text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 font-inter">Система мониторинга камер</h1>
-              <p className="text-sm text-gray-600">Отчеты по работе оборудования и аналитика</p>
+    <div className="min-h-screen bg-gray-50 flex font-inter">
+      {/* Dark Sidebar */}
+      <div className="w-64 bg-gray-800 text-white flex flex-col">
+        <div className="p-4 border-b border-gray-700">
+          <div className="flex items-center space-x-2">
+            <Icon name="Shield" size={24} className="text-blue-400" />
+            <span className="font-semibold">Портал подрядчика</span>
+          </div>
+        </div>
+        
+        <nav className="flex-1 py-4">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveSection(item.id)}
+              className={`w-full flex items-center space-x-3 px-4 py-2 text-sm hover:bg-gray-700 transition-colors ${
+                activeSection === item.id ? 'bg-gray-700 border-r-2 border-blue-400' : ''
+              }`}
+            >
+              <Icon name={item.icon} size={16} />
+              <span>{item.label}</span>
+            </button>
+          ))}
+          
+          <Separator className="my-4 bg-gray-700" />
+          
+          <div className="px-4 py-2">
+            <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">Справочники</p>
+            {subMenuItems.map((item, index) => (
+              <button
+                key={index}
+                className="w-full text-left px-2 py-1 text-sm text-gray-300 hover:text-white transition-colors"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                <Icon name="Camera" size={16} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">{deviceData.name}: {deviceData.id}</h1>
+                <p className="text-sm text-gray-600">{deviceData.address}</p>
+                <p className="text-xs text-gray-500">GUID: {deviceData.guid}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Badge className="bg-green-100 text-green-800">
+                Статус: {deviceData.status}
+              </Badge>
+              <Button variant="outline" size="sm">
+                <Icon name="Edit" size={16} className="mr-2" />
+                Сменить статус
+              </Button>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <Badge variant="outline" className="text-green-700 border-green-200">
-              <Icon name="CheckCircle" size={16} className="mr-1" />
-              Система работает
-            </Badge>
-            <Button variant="outline" size="sm">
-              <Icon name="Settings" size={16} className="mr-2" />
-              Настройки
-            </Button>
+        </header>
+
+        <div className="flex-1 p-6 space-y-6">
+          {/* Image Placeholders */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Последний доступный скриншот</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="text-center">
+                    <Icon name="Camera" size={32} className="text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Нет доступного изображения</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Скриншот из базы эталонных изображений</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
+                  <div className="text-center">
+                    <Icon name="Image" size={32} className="text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Эталонное изображение</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Место установки</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-orange-100 rounded border flex items-center justify-center relative">
+                  <div className="text-center">
+                    <Icon name="MapPin" size={32} className="text-orange-600 mx-auto mb-2" />
+                    <p className="text-sm text-orange-700">Карта местоположения</p>
+                  </div>
+                  <div className="absolute top-2 right-2">
+                    <Icon name="ZoomIn" size={20} className="text-gray-600" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </header>
 
-      <div className="p-6">
-        {/* Analytics Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {analytics.map((item, index) => (
-            <Card key={index} className="bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{item.label}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{item.value}</p>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Icon 
-                      name={item.trend.startsWith('+') ? "TrendingUp" : "TrendingDown"} 
-                      size={16} 
-                      className={item.trend.startsWith('+') ? "text-green-600" : "text-red-600"} 
-                    />
-                    <span className={`text-sm font-medium ${item.trend.startsWith('+') ? "text-green-600" : "text-red-600"}`}>
-                      {item.trend}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Tabs defaultValue="cameras" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="cameras">Панель камер</TabsTrigger>
-            <TabsTrigger value="tech">Тех. параметры</TabsTrigger>
-            <TabsTrigger value="service">Сервис</TabsTrigger>
-            <TabsTrigger value="location">Места установки</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="cameras" className="space-y-6">
+          {/* Technical Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Technical Parameters */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Icon name="MonitorSpeaker" size={20} />
-                  <span>Активные камеры наблюдения</span>
-                </CardTitle>
+                <CardTitle className="text-base">Технические параметры</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {cameras.map((camera) => (
-                    <div key={camera.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Icon name="Camera" size={20} className="text-blue-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{camera.name}</h3>
-                          <p className="text-sm text-gray-600">ID: {camera.id} • {camera.type}</p>
-                          <p className="text-xs text-gray-500">Последняя проверка: {camera.lastCheck}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <span className="text-sm text-gray-600">Время работы:</span>
-                            <span className="font-semibold">{camera.uptime}%</span>
-                          </div>
-                          <Progress value={camera.uptime} className="w-24 h-2" />
-                        </div>
-                        <Badge className={getStatusColor(camera.status)}>
-                          {camera.status}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Play" size={16} className="mr-1" />
-                          Live
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Категория УМ</p>
+                  <p className="text-sm text-gray-600">{deviceData.specs.category}</p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="tech" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Icon name="Cpu" size={20} />
-                  <span>Технические параметры оборудования</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Характеристики камеры 18-0242</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Разрешение:</span>
-                        <span className="font-medium">1920x1080</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Частота кадров:</span>
-                        <span className="font-medium">30 FPS</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Угол обзора:</span>
-                        <span className="font-medium">85°</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Ночное видение:</span>
-                        <span className="font-medium">До 30м</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Питание:</span>
-                        <span className="font-medium">PoE 48V</span>
-                      </div>
-                    </div>
+                
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Модель УМ</p>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">{deviceData.model}</span>
+                    <Icon name="Info" size={16} className="text-gray-400" />
                   </div>
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Производительность сети</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Битрейт:</span>
-                        <span className="font-medium">4 Мбит/с</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Задержка:</span>
-                        <span className="font-medium">45 мс</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Потери пакетов:</span>
-                        <span className="font-medium">0.1%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Температура:</span>
-                        <span className="font-medium">+23°C</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Загрузка CPU:</span>
-                        <span className="font-medium">65%</span>
-                      </div>
+                </div>
+
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Видеопоток</TableCell>
+                      <TableCell>{deviceData.specs.video}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Аудиопоток</TableCell>
+                      <TableCell>{deviceData.specs.audio}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Динамик</TableCell>
+                      <TableCell>{deviceData.specs.dynamics}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">ZOOM</TableCell>
+                      <TableCell>{deviceData.specs.zoom}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">PTZ</TableCell>
+                      <TableCell>{deviceData.specs.ptz}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Подсветка (м.)</TableCell>
+                      <TableCell>{deviceData.specs.ir}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+
+                <div className="pt-4 border-t">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Сетевые адреса</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">IP-адрес камеры:</span>
+                      <span className="text-sm font-mono">{deviceData.network.camera}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">IP-адрес замка:</span>
+                      <span className="text-sm font-mono">{deviceData.network.lock}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">IP-адрес аудиообмена:</span>
+                      <span className="text-sm font-mono">{deviceData.network.audio}</span>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          <TabsContent value="service" className="space-y-6">
+            {/* Service Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Icon name="Wrench" size={20} />
-                  <span>Сервисное обслуживание</span>
-                </CardTitle>
+                <CardTitle className="text-base">Сервис</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Icon name="CheckCircle" size={20} className="text-green-600" />
-                        <span className="font-semibold text-green-800">Плановое ТО</span>
-                      </div>
-                      <p className="text-sm text-green-700">Следующее обслуживание через 45 дней</p>
-                    </div>
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Icon name="AlertTriangle" size={20} className="text-yellow-600" />
-                        <span className="font-semibold text-yellow-800">Требует внимания</span>
-                      </div>
-                      <p className="text-sm text-yellow-700">Камера 18-0243 нуждается в калибровке</p>
-                    </div>
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Icon name="Clock" size={20} className="text-blue-600" />
-                        <span className="font-semibold text-blue-800">Последнее ТО</span>
-                      </div>
-                      <p className="text-sm text-blue-700">15.06.2020 - Замена объектива</p>
-                    </div>
-                  </div>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Сервисный идентификатор УМ</p>
+                  <p className="text-sm font-mono text-gray-600">{deviceData.id}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Тип услуги</p>
+                  <p className="text-sm text-gray-600">3 (третий тип, поворотная)</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Контакт</p>
+                  <p className="text-sm text-gray-600">№140</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Оператор</p>
+                  <p className="text-sm text-gray-600">ПАО "Ростелеком"</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Адрес по контакту</p>
+                  <p className="text-sm text-gray-600">{deviceData.address}</p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Объект наблюдения</p>
+                  <p className="text-sm text-gray-600">Комплекс объектов дорожно-уличной сети</p>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Результат проверки от 10.06.2025 20:04</h4>
+                  <p className="text-sm text-red-600 mb-3">Есть замечания</p>
                   
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-4">История обслуживания</h4>
-                    <div className="space-y-3">
-                      {[
-                        { date: "22.07.20 14:55", action: "Крупный Анатолий Дмитриевич", status: "Статус изменен на: Подтвержден" },
-                        { date: "10.07.20 08:35", action: "Координатор Арно Та", status: "Статус изменен на: Проверен" },
-                        { date: "15.07.20 10:40", action: "Чумак Сергей Тимофеевич", status: "Есть замечания" }
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg">
-                          <Icon name="User" size={16} className="text-gray-400 mt-1" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{item.action}</p>
-                            <p className="text-sm text-gray-600">{item.status}</p>
-                            <p className="text-xs text-gray-500">{item.date}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="location" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Icon name="MapPin" size={20} />
-                  <span>Карта размещения камер</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                    <div className="text-center">
-                      <Icon name="Map" size={48} className="text-gray-400 mb-2 mx-auto" />
-                      <p className="text-gray-600">Интерактивная карта</p>
-                      <p className="text-sm text-gray-500">Яндекс.Карты будут загружены</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Адреса установки</h4>
-                    {cameras.map((camera) => (
-                      <div key={camera.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-blue-600">{camera.id.split('-')[1]}</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">{camera.name}</p>
-                          <p className="text-sm text-gray-600">{camera.location}</p>
-                        </div>
-                        <Badge className={getStatusColor(camera.status)}>
-                          {camera.status}
-                        </Badge>
+                  <div className="space-y-2">
+                    {checkResults.map((result, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        {getStatusIcon(result.status)}
+                        <span className="text-sm text-gray-600">{result.param}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+
+            {/* Location Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Место установки</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Широта</TableCell>
+                      <TableCell className="font-mono">{deviceData.coordinates.width}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Долгота</TableCell>
+                      <TableCell className="font-mono">{deviceData.coordinates.longitude}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Азимут</TableCell>
+                      <TableCell>{deviceData.coordinates.azimuth}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Высота подвеса</TableCell>
+                      <TableCell>{deviceData.coordinates.height}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Парадная</TableCell>
+                      <TableCell>-</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+
+                <div className="pt-4 border-t">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-900">Объект размещения</span>
+                    <Icon name="ExternalLink" size={16} className="text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-600">Фасад здания (78-10221-0-1)</p>
+                </div>
+
+                <div className="pt-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-900">Район</span>
+                    <span className="text-sm text-gray-600">Кронштадтский</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-900">Тип строения</span>
+                    <span className="text-sm text-gray-600">жилой дом</span>
+                  </div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-900">В охранной зоне</span>
+                    <span className="text-sm text-gray-600">НЕТ</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-900">Адрес по РГИС</span>
+                    <span className="text-sm text-gray-600 text-right">
+                      Санкт-Петербург, город Кронштадт, улица Ленина, дом 11/37, литера А
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center text-xs text-gray-500 pt-4">
+            <p>Версия: 1.2025.06 (016226), релиз от 10.06.2025 16:26</p>
+          </div>
+        </div>
       </div>
     </div>
   );
